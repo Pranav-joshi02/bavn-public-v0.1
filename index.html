@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAVN.io — AI Form Filler</title>
+<meta name="description" content="Fill any form instantly with AI. BAVN generates personalized answers, remembers them, and fills everything in one click.">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #07090c;
+  --bg2:      #0c0f14;
+  --surface:  #111620;
+  --surface2: #171e2a;
+  --border:   #1d2535;
+  --border2:  #243040;
+  --accent:   #00d4f5;
+  --accent2:  #ff5c35;
+  --green:    #6effa0;
+  --text:     #e2eaf5;
+  --muted:    #4d6070;
+  --muted2:   #8aa0b5;
+}
+
+html { scroll-behavior: smooth; }
+html { scroll-padding-top: 80px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  width: 8px; height: 8px; background: var(--accent);
+  border-radius: 50%; position: fixed; pointer-events: none;
+  z-index: 99999; transform: translate(-50%,-50%);
+  transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  width: 32px; height: 32px; border: 1px solid rgba(0,212,245,0.4);
+  border-radius: 50%; position: fixed; pointer-events: none;
+  z-index: 99998; transform: translate(-50%,-50%);
+  transition: transform 0.15s ease, width 0.3s, height 0.3s;
+}
+body:hover .cursor { opacity: 1; }
+
+/* ── NOISE ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px;
+  background: rgba(7,9,12,0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(29,37,53,0.8);
+}
+.nav-logo {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(120deg, #00d4f5, #6effa0);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-links { display: flex; align-items: center; gap: 36px; }
+.nav-links a {
+  color: var(--muted); text-decoration: none; font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  background: var(--accent); color: #07090c; border: none; border-radius: 6px;
+  padding: 9px 20px; font-family: 'DM Mono', monospace; font-size: 12px;
+  font-weight: 500; cursor: none; transition: opacity 0.2s, transform 0.15s;
+  text-decoration: none; letter-spacing: 0.5px;
+}
+.nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 100px 24px 80px;
+  position: relative; overflow: hidden;
+}
+
+/* Animated grid background */
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,245,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,245,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+}
+
+/* Glowing orbs */
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px);
+  pointer-events: none; animation: drift 12s ease-in-out infinite;
+}
+.orb-1 { width: 500px; height: 500px; background: rgba(0,212,245,0.06); top: -100px; left: 50%; transform: translateX(-50%); }
+.orb-2 { width: 300px; height: 300px; background: rgba(110,255,160,0.05); bottom: 0; right: 10%; animation-delay: -4s; }
+.orb-3 { width: 200px; height: 200px; background: rgba(255,92,53,0.04); top: 30%; left: 5%; animation-delay: -8s; }
+
+@keyframes drift {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-30px) scale(1.05); }
+}
+
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,212,245,0.07); border: 1px solid rgba(0,212,245,0.18);
+  border-radius: 100px; padding: 6px 16px 6px 8px;
+  font-size: 11px; color: var(--accent); letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 36px;
+  animation: fadeUp 0.8s ease both;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.7); }
+}
+
+.hero-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(52px, 9vw, 108px);
+  font-weight: 800; line-height: 0.95; letter-spacing: -3px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero-title .t1 { display: block; color: var(--text); }
+.hero-title .t2 {
+  display: block;
+  background: linear-gradient(120deg, #00d4f5 20%, #6effa0 80%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.hero-sub {
+  font-size: 15px; color: var(--muted2); max-width: 520px; margin: 0 auto 48px;
+  line-height: 1.8; animation: fadeUp 0.8s 0.2s ease both;
+}
+
+.hero-actions {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.btn-hero {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 28px; border-radius: 8px; font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 500; cursor: none; text-decoration: none;
+  transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.3px;
+}
+.btn-hero:hover { transform: translateY(-2px); }
+.btn-filled {
+  background: var(--accent); color: #07090c;
+  box-shadow: 0 0 32px rgba(0,212,245,0.2);
+}
+.btn-filled:hover { box-shadow: 0 0 48px rgba(0,212,245,0.35); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--accent); }
+
+/* Social proof */
+.hero-proof {
+  margin-top: 64px; display: flex; align-items: center; gap: 24px;
+  justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.proof-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.proof-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border2); }
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 16px 0; overflow: hidden; background: var(--bg2);
+  position: relative; z-index: 1;
+}
+.marquee-track {
+  display: flex; gap: 0; white-space: nowrap;
+  animation: marquee 25s linear infinite;
+}
+.marquee-item {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 0 32px; font-size: 11px; color: var(--muted);
+  letter-spacing: 2px; text-transform: uppercase; flex-shrink: 0;
+}
+.marquee-item span { color: var(--accent); font-size: 14px; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── SECTIONS ── */
+.section { padding: 120px 24px; max-width: 1100px; margin: 0 auto; }
+.section-tag {
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+}
+.section-tag::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+.section-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(32px, 4vw, 56px); font-weight: 800;
+  letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 64px;
+}
+.section-title em { font-style: normal; color: var(--accent); }
+
+/* ── HOW IT WORKS ── */
+.how-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.how-step {
+  background: var(--surface); padding: 40px 36px;
+  transition: background 0.3s;
+  position: relative; overflow: hidden;
+}
+.how-step::before {
+  content: attr(data-num);
+  position: absolute; right: 24px; top: 24px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 80px; font-weight: 800; color: rgba(255,255,255,0.02);
+  line-height: 1; pointer-events: none;
+}
+.how-step:hover { background: var(--surface2); }
+.step-icon-wrap {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: rgba(0,212,245,0.08); border: 1px solid rgba(0,212,245,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+}
+.how-step h3 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px;
+}
+.how-step p { font-size: 12px; color: var(--muted2); line-height: 1.7; }
+
+/* ── FEATURES ── */
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.feat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px 24px;
+  transition: border-color 0.25s, transform 0.25s;
+  position: relative; overflow: hidden;
+}
+.feat::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0,212,245,0.04), transparent 60%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.feat:hover { border-color: rgba(0,212,245,0.25); transform: translateY(-4px); }
+.feat:hover::after { opacity: 1; }
+.feat-icon { font-size: 26px; margin-bottom: 14px; }
+.feat h3 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.feat p { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+
+/* ── PRIVACY ── */
+.privacy-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+.privacy-left { padding: 56px 48px; border-right: 1px solid var(--border); }
+.privacy-right { padding: 56px 48px; background: var(--bg2); }
+.privacy-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px;
+}
+.privacy-desc { font-size: 13px; color: var(--muted2); line-height: 1.8; margin-bottom: 32px; }
+.privacy-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.privacy-list li {
+  display: flex; gap: 14px; font-size: 12px; color: var(--muted2); line-height: 1.5;
+  align-items: flex-start;
+}
+.check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+.toggle-demo {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px;
+}
+.toggle-row.sensitive { border-color: rgba(255,92,53,0.2); background: rgba(255,92,53,0.04); }
+.toggle-row.safe { border-color: rgba(110,255,160,0.15); }
+.t-label { font-size: 11px; color: var(--text); }
+.t-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.toggle-pill {
+  width: 36px; height: 20px; border-radius: 100px;
+  position: relative; flex-shrink: 0;
+}
+.toggle-pill.on { background: rgba(110,255,160,0.2); border: 1px solid rgba(110,255,160,0.4); }
+.toggle-pill.off { background: rgba(255,92,53,0.15); border: 1px solid rgba(255,92,53,0.3); }
+.toggle-pill::after {
+  content: ''; position: absolute; top: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  transition: left 0.2s;
+}
+.toggle-pill.on::after { left: 18px; background: var(--green); }
+.toggle-pill.off::after { left: 2px; background: var(--accent2); }
+.t-demo-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border); padding: 32px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo {
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 800;
+  background: linear-gradient(120deg, #00d4f5, #6effa0);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.footer-links { display: flex; gap: 28px; }
+.footer-links a { color: var(--muted); font-size: 11px; text-decoration: none; letter-spacing: 1px; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-size: 11px; color: var(--muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .how-wrap { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .privacy-wrap { grid-template-columns: 1fr; }
+  .privacy-left { border-right: none; border-bottom: 1px solid var(--border); }
+  footer { flex-direction: column; gap: 20px; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+}
+@media (max-width: 600px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .waitlist-form { flex-direction: column; }
+  .hero-title { letter-spacing: -2px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">BAVN.io</div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#install">Install</a>
+    </div>
+  <a class="nav-cta" href="bavn-extension-v1.0.0.zip" download>Download Free →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      AI-powered form filling
+    </div>
+    <h1 class="hero-title">
+      <span class="t1">Stop filling</span>
+      <span class="t2">forms manually.</span>
+    </h1>
+    <p class="hero-sub">
+      BAVN reads any form, generates personalized answers from your profile,
+      and fills everything in one click. Your answers are saved to cloud memory
+      and reused automatically — forever.
+    </p>
+    <div class="hero-actions">
+
+      <a class="btn-hero btn-filled" href="bavn-extension-v1.0.0.zip" download>
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1v9M3.5 7l4 4 4-4M1 13h13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Download — Free
+      </a>
+      <a class="btn-hero btn-ghost" href="#how">See how it works</a>
+    </div>
+
+    <div class="hero-proof">
+      <div class="proof-item">🎓 Built for students</div>
+      <div class="proof-dot"></div>
+      <div class="proof-item">⚡ Works on any form</div>
+      <div class="proof-dot"></div>
+      <div class="proof-item">🔒 Privacy-first</div>
+      <div class="proof-dot"></div>
+      <div class="proof-item">🆓 Free to start</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <!-- First set -->
+    <div class="marquee-item"><span>✦</span> Google Forms</div>
+    <div class="marquee-item"><span>✦</span> Internship Applications</div>
+    <div class="marquee-item"><span>✦</span> Job Portals</div>
+    <div class="marquee-item"><span>✦</span> College Forms</div>
+    <div class="marquee-item"><span>✦</span> Survey Forms</div>
+    <div class="marquee-item"><span>✦</span> Registration Forms</div>
+    <div class="marquee-item"><span>✦</span> Typeform</div>
+    <div class="marquee-item"><span>✦</span> Application Portals</div>
+    <div class="marquee-item"><span>✦</span> Scholarship Forms</div>
+    <div class="marquee-item"><span>✦</span> HR Onboarding</div>
+    <!-- Duplicate for seamless loop -->
+    <div class="marquee-item"><span>✦</span> Google Forms</div>
+    <div class="marquee-item"><span>✦</span> Internship Applications</div>
+    <div class="marquee-item"><span>✦</span> Job Portals</div>
+    <div class="marquee-item"><span>✦</span> College Forms</div>
+    <div class="marquee-item"><span>✦</span> Survey Forms</div>
+    <div class="marquee-item"><span>✦</span> Registration Forms</div>
+    <div class="marquee-item"><span>✦</span> Typeform</div>
+    <div class="marquee-item"><span>✦</span> Application Portals</div>
+    <div class="marquee-item"><span>✦</span> Scholarship Forms</div>
+    <div class="marquee-item"><span>✦</span> HR Onboarding</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="reveal">
+    <div class="section-tag">How it works</div>
+    <div class="section-title">From open to filled<br>in <em>four steps.</em></div>
+  </div>
+  <div class="how-wrap reveal">
+    <div class="how-step" data-num="01">
+      <div class="step-icon-wrap">🧩</div>
+      <h3>Install & sign in</h3>
+      <p>Add BAVN to Chrome and sign in with Google. Your account and memory sync across every device you own — instantly.</p>
+    </div>
+    <div class="how-step" data-num="02">
+      <div class="step-icon-wrap">👤</div>
+      <h3>Set your profile once</h3>
+      <p>Fill in your details — college, degree, skills, resume. Use privacy toggles to choose exactly what the AI is allowed to see.</p>
+    </div>
+    <div class="how-step" data-num="03">
+      <div class="step-icon-wrap">✦</div>
+      <h3>Generate answers</h3>
+      <p>Open any form, click Generate in the sidebar. BAVN reads every question and creates personalized, first-person answers instantly.</p>
+    </div>
+    <div class="how-step" data-num="04">
+      <div class="step-icon-wrap">⚡</div>
+      <h3>Fill & remember</h3>
+      <p>One click fills the entire form. Every answer is saved to your cloud memory — reused automatically on future forms. It gets smarter every time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features" style="padding-top:0;">
+  <div class="reveal">
+    <div class="section-tag">Features</div>
+    <div class="section-title">Everything you need<br>to <em>apply faster.</em></div>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feat">
+      <div class="feat-icon">🧠</div>
+      <h3>Cloud Memory</h3>
+      <p>Every answer you generate is saved. Similar questions get reused instantly — no AI call, no waiting, no repeating yourself.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📱</div>
+      <h3>Cross-device sync</h3>
+      <p>Log in on any device and your entire answer history is already there. Install once, use everywhere.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">✍️</div>
+      <h3>Teach BAVN</h3>
+      <p>Wrote a better answer yourself? BAVN can learn it. Save any manually written answer to memory with one click.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <h3>Works on any form</h3>
+      <p>Google Forms, Typeform, internship portals, job applications — BAVN detects and fills questions on any website.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">✦</div>
+      <h3>Personalized answers</h3>
+      <p>Answers written in your voice using your background. Not generic templates — real answers that sound like you.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔄</div>
+      <h3>Gets smarter over time</h3>
+      <p>The more forms you fill, the richer your memory gets. BAVN improves with every application you send.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section class="section" id="privacy" style="padding-top:0;">
+  <div class="reveal">
+    <div class="section-tag">Privacy</div>
+    <div class="section-title">You control what<br>the <em>AI sees.</em></div>
+  </div>
+  <div class="privacy-wrap reveal">
+    <div class="privacy-left">
+      <div class="privacy-title">Your data stays yours.</div>
+      <p class="privacy-desc">BAVN is built privacy-first from the ground up. Row Level Security means your data is physically inaccessible to anyone else — even with direct database access.</p>
+      <ul class="privacy-list">
+        <li><span class="check">✓</span>Row Level Security at DB level — only you can read your data</li>
+        <li><span class="check">✓</span>Phone, email, LinkedIn never sent to AI unless you enable them</li>
+        <li><span class="check">✓</span>Google OAuth — we never see or store your password</li>
+        <li><span class="check">✓</span>Delete any saved answer at any time from the Memory tab</li>
+        <li><span class="check">✓</span>No ads. No selling your data. No tracking. Ever.</li>
+      </ul>
+    </div>
+    <div class="privacy-right">
+      <div class="t-demo-label">AI visibility controls</div>
+      <div class="toggle-demo">
+        <div class="toggle-row safe">
+          <div><div class="t-label">Full Name</div><div class="t-sub">Safe to share</div></div>
+          <div class="toggle-pill on"></div>
+        </div>
+        <div class="toggle-row safe">
+          <div><div class="t-label">College & Degree</div><div class="t-sub">Safe to share</div></div>
+          <div class="toggle-pill on"></div>
+        </div>
+        <div class="toggle-row safe">
+          <div><div class="t-label">Resume / Bio</div><div class="t-sub">Safe to share</div></div>
+          <div class="toggle-pill on"></div>
+        </div>
+        <div class="toggle-row sensitive">
+          <div><div class="t-label">Phone Number</div><div class="t-sub">Sensitive — off by default</div></div>
+          <div class="toggle-pill off"></div>
+        </div>
+        <div class="toggle-row sensitive">
+          <div><div class="t-label">Email Address</div><div class="t-sub">Sensitive — off by default</div></div>
+          <div class="toggle-pill off"></div>
+        </div>
+        <div class="toggle-row sensitive">
+          <div><div class="t-label">LinkedIn URL</div><div class="t-sub">Sensitive — off by default</div></div>
+          <div class="toggle-pill off"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section style="padding:100px 24px;text-align:center;position:relative;overflow:hidden;" id="install">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:350px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,212,245,0.06) 0%,transparent 70%);pointer-events:none;"></div>
+  <div style="position:relative;z-index:1;max-width:560px;margin:0 auto;" class="reveal">
+    <div class="section-tag" style="justify-content:center;">Get started</div>
+    <div class="section-title" style="margin-bottom:48px;">Install in<br><em>2 minutes.</em></div>
+    <div style="display:flex;flex-direction:column;gap:0;margin-bottom:48px;text-align:left;">
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">1</div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Download the extension</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Click the button below to download the BAVN extension ZIP file.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">2</div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Open Chrome Extensions</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Go to <code style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--accent);">chrome://extensions</code> and toggle <strong style="color:var(--text);">Developer mode</strong> ON.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">3</div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Load the extension</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Unzip the file, click <strong style="color:var(--text);">Load unpacked</strong>, and select the unzipped folder.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">4</div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Sign in & start filling</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Click the BAVN icon in your toolbar, sign in with Google, and you're ready.</div></div>
+      </div>
+    </div>
+    <a class="btn-hero btn-filled" href="bavn-extension-v1.0.0.zip" download style="font-size:15px;padding:18px 40px;display:inline-flex;">
+      <svg width="16" height="16" viewBox="0 0 15 15" fill="none">
+        <path d="M7.5 1v9M3.5 7l4 4 4-4M1 13h13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Download BAVN — Free
+    </a>
+    <p style="margin-top:16px;font-size:11px;color:var(--muted);">Chrome Web Store version coming soon · Works on Chrome, Brave, Edge</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo" style="text-decoration:none;cursor:none;">BAVN.io</a>
+  <div class="footer-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#install">Install</a>
+  </div>
+  <div class="footer-copy">© 2026 BAVN.io — Built-in Autofill & Verification Node</div>
+</footer>
+
+<script>
+// ── Custom cursor ──────────────────────────
+const cursor     = document.getElementById('cursor')
+const cursorRing = document.getElementById('cursor-ring')
+let mx = 0, my = 0, rx = 0, ry = 0
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY
+  cursor.style.left = mx + 'px'
+  cursor.style.top  = my + 'px'
+})
+
+function animateRing() {
+  rx += (mx - rx) * 0.12
+  ry += (my - ry) * 0.12
+  cursorRing.style.left = rx + 'px'
+  cursorRing.style.top  = ry + 'px'
+  requestAnimationFrame(animateRing)
+}
+animateRing()
+
+document.querySelectorAll('a, button, .feat, .how-step').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '14px'
+    cursor.style.height = '14px'
+    cursorRing.style.width = '48px'
+    cursorRing.style.height = '48px'
+  })
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '8px'
+    cursor.style.height = '8px'
+    cursorRing.style.width = '32px'
+    cursorRing.style.height = '32px'
+  })
+})
+
+// ── Scroll reveal ──────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80)
+    }
+  })
+}, { threshold: 0.1 })
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+
+</script>
+</body>
+</html>
