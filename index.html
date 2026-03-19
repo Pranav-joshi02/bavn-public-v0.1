@@ -3,676 +3,442 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BAVN.io — AI Form Filler</title>
-<meta name="description" content="Fill any form instantly with AI. BAVN generates personalized answers, remembers them, and fills everything in one click.">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>BAVN.io — AI Form Filler & Review Writer</title>
+<meta name="description" content="Fill any form instantly with AI-generated answers. Works on Internshala, Unstop, Google Forms and every website.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-:root {
-  --bg:       #07090c;
-  --bg2:      #0c0f14;
-  --surface:  #111620;
-  --surface2: #171e2a;
-  --border:   #1d2535;
-  --border2:  #243040;
-  --accent:   #00d4f5;
-  --accent2:  #ff5c35;
-  --green:    #6effa0;
-  --text:     #e2eaf5;
-  --muted:    #4d6070;
-  --muted2:   #8aa0b5;
+:root{
+  --ink:    #0a0f1a;
+  --ink2:   #1a2236;
+  --muted:  #6b7a99;
+  --muted2: #9aa3b8;
+  --line:   #e8edf5;
+  --line2:  #d0d8e8;
+  --teal:   #006d77;
+  --teal2:  #00a3b0;
+  --coral:  #e76f51;
+  --mint:   #edf6f9;
+  --white:  #ffffff;
+  --radius: 12px;
 }
 
-html { scroll-behavior: smooth; }
-html { scroll-padding-top: 80px; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Mono', monospace;
-  overflow-x: hidden;
-  cursor: none;
-}
-
-/* ── CUSTOM CURSOR ── */
-.cursor {
-  width: 8px; height: 8px; background: var(--accent);
-  border-radius: 50%; position: fixed; pointer-events: none;
-  z-index: 99999; transform: translate(-50%,-50%);
-  transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
-  mix-blend-mode: screen;
-}
-.cursor-ring {
-  width: 32px; height: 32px; border: 1px solid rgba(0,212,245,0.4);
-  border-radius: 50%; position: fixed; pointer-events: none;
-  z-index: 99998; transform: translate(-50%,-50%);
-  transition: transform 0.15s ease, width 0.3s, height 0.3s;
-}
-body:hover .cursor { opacity: 1; }
-
-/* ── NOISE ── */
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 9999;
-}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
 /* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 48px; height: 64px;
-  background: rgba(7,9,12,0.7);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(29,37,53,0.8);
-}
-.nav-logo {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
-  background: linear-gradient(120deg, #00d4f5, #6effa0);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.nav-links { display: flex; align-items: center; gap: 36px; }
-.nav-links a {
-  color: var(--muted); text-decoration: none; font-size: 11px;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--text); }
-.nav-cta {
-  background: var(--accent); color: #07090c; border: none; border-radius: 6px;
-  padding: 9px 20px; font-family: 'DM Mono', monospace; font-size: 12px;
-  font-weight: 500; cursor: none; transition: opacity 0.2s, transform 0.15s;
-  text-decoration: none; letter-spacing: 0.5px;
-}
-.nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--teal);text-decoration:none;letter-spacing:0.5px}
+.nav-logo em{font-style:italic;color:var(--coral)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--teal);color:#fff;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:opacity 0.2s}
+.nav-cta:hover{opacity:0.85}
 
 /* ── HERO ── */
-.hero {
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center; padding: 100px 24px 80px;
-  position: relative; overflow: hidden;
-}
+.hero{min-height:100vh;display:flex;align-items:center;padding:80px 5% 0;position:relative;overflow:hidden;background:linear-gradient(165deg,#f7fbfc 0%,#edf6f9 40%,#fff 100%)}
+.hero-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-circle{position:absolute;border-radius:50%;opacity:0.08}
+.hero-circle-1{width:600px;height:600px;background:var(--teal);top:-200px;right:-100px}
+.hero-circle-2{width:400px;height:400px;background:var(--coral);bottom:-100px;left:10%}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,109,119,0.08);border:1px solid rgba(0,109,119,0.2);color:var(--teal);font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:24px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(42px,5vw,66px);line-height:1.1;color:var(--ink);margin-bottom:24px;font-weight:400}
+h1 em{font-style:italic;color:var(--teal)}
+h1 span{color:var(--coral)}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.7;margin-bottom:36px;font-weight:400;max-width:480px}
+.hero-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.btn-primary{background:var(--teal);color:#fff;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,109,119,0.25)}
+.btn-primary:hover{background:#005860;transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,109,119,0.3)}
+.btn-secondary{color:var(--teal);padding:14px 28px;border-radius:10px;font-size:15px;font-weight:500;text-decoration:none;border:1.5px solid var(--teal);transition:all 0.2s}
+.btn-secondary:hover{background:rgba(0,109,119,0.06)}
+.hero-note{font-size:12px;color:var(--muted2);margin-top:16px;display:flex;align-items:center;gap:6px}
+.hero-note::before{content:'';width:16px;height:1px;background:var(--line2)}
 
-/* Animated grid background */
-.hero-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(0,212,245,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,212,245,0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
-}
+/* ── HERO VISUAL ── */
+.hero-visual{position:relative}
+.phone-frame{background:var(--ink);border-radius:40px;padding:16px;box-shadow:0 32px 80px rgba(10,15,26,0.25),0 0 0 1px rgba(255,255,255,0.1) inset;max-width:320px;margin:0 auto;position:relative}
+.phone-screen{background:#111827;border-radius:28px;overflow:hidden;min-height:560px}
+.phone-status{background:#0f172a;padding:12px 20px 8px;display:flex;justify-content:space-between;align-items:center}
+.phone-status span{font-size:11px;color:#64748b;font-family:'DM Mono',monospace}
+.tg-header{background:#0f172a;padding:12px 16px;border-bottom:1px solid #1e293b;display:flex;align-items:center;gap:10px}
+.tg-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tg-name{font-size:14px;font-weight:600;color:#f1f5f9}
+.tg-status{font-size:11px;color:#22c55e}
+.tg-chat{padding:12px;display:flex;flex-direction:column;gap:8px;min-height:440px}
+.msg{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;animation:msgIn 0.3s ease forwards;opacity:0}
+@keyframes msgIn{to{opacity:1;transform:translateY(0)}from{opacity:0;transform:translateY(8px)}}
+.msg-bot{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:4px;align-self:flex-start}
+.msg-user{background:var(--teal);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.msg-img{background:#1e293b;border-radius:12px;overflow:hidden;align-self:flex-end;max-width:55%}
+.msg-img-inner{background:linear-gradient(135deg,#1e3a5f,#1e293b);padding:24px 16px;text-align:center}
+.msg-img-inner div{font-size:28px;margin-bottom:6px}
+.msg-img-inner span{font-size:10px;color:#64748b;font-family:'DM Mono',monospace}
+.msg strong{color:#fff}
+.kbd-btns{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;background:#0f172a;border-top:1px solid #1e293b}
+.kbd-btn{background:#1e293b;color:#94a3b8;font-size:11px;padding:6px 10px;border-radius:8px;font-family:'DM Mono',monospace;cursor:pointer;transition:background 0.2s}
+.kbd-btn:hover{background:#273548}
+.msg:nth-child(1){animation-delay:0.2s}
+.msg:nth-child(2){animation-delay:0.6s}
+.msg:nth-child(3){animation-delay:1.0s}
+.msg:nth-child(4){animation-delay:1.4s}
+.msg:nth-child(5){animation-delay:1.8s}
+.msg:nth-child(6){animation-delay:2.2s}
 
-/* Glowing orbs */
-.orb {
-  position: absolute; border-radius: 50%; filter: blur(80px);
-  pointer-events: none; animation: drift 12s ease-in-out infinite;
-}
-.orb-1 { width: 500px; height: 500px; background: rgba(0,212,245,0.06); top: -100px; left: 50%; transform: translateX(-50%); }
-.orb-2 { width: 300px; height: 300px; background: rgba(110,255,160,0.05); bottom: 0; right: 10%; animation-delay: -4s; }
-.orb-3 { width: 200px; height: 200px; background: rgba(255,92,53,0.04); top: 30%; left: 5%; animation-delay: -8s; }
-
-@keyframes drift {
-  0%,100% { transform: translateY(0) scale(1); }
-  50%      { transform: translateY(-30px) scale(1.05); }
-}
-
-.hero-content { position: relative; z-index: 1; max-width: 800px; }
-
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(0,212,245,0.07); border: 1px solid rgba(0,212,245,0.18);
-  border-radius: 100px; padding: 6px 16px 6px 8px;
-  font-size: 11px; color: var(--accent); letter-spacing: 1.5px;
-  text-transform: uppercase; margin-bottom: 36px;
-  animation: fadeUp 0.8s ease both;
-}
-.eyebrow-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-@keyframes pulse-dot {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.4; transform: scale(0.7); }
-}
-
-.hero-title {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: clamp(52px, 9vw, 108px);
-  font-weight: 800; line-height: 0.95; letter-spacing: -3px;
-  margin-bottom: 28px;
-  animation: fadeUp 0.8s 0.1s ease both;
-}
-.hero-title .t1 { display: block; color: var(--text); }
-.hero-title .t2 {
-  display: block;
-  background: linear-gradient(120deg, #00d4f5 20%, #6effa0 80%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-
-.hero-sub {
-  font-size: 15px; color: var(--muted2); max-width: 520px; margin: 0 auto 48px;
-  line-height: 1.8; animation: fadeUp 0.8s 0.2s ease both;
-}
-
-.hero-actions {
-  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
-  animation: fadeUp 0.8s 0.3s ease both;
-}
-
-.btn-hero {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 15px 28px; border-radius: 8px; font-family: 'DM Mono', monospace;
-  font-size: 13px; font-weight: 500; cursor: none; text-decoration: none;
-  transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
-  letter-spacing: 0.3px;
-}
-.btn-hero:hover { transform: translateY(-2px); }
-.btn-filled {
-  background: var(--accent); color: #07090c;
-  box-shadow: 0 0 32px rgba(0,212,245,0.2);
-}
-.btn-filled:hover { box-shadow: 0 0 48px rgba(0,212,245,0.35); }
-.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); }
-.btn-ghost:hover { border-color: var(--accent); }
-
-/* Social proof */
-.hero-proof {
-  margin-top: 64px; display: flex; align-items: center; gap: 24px;
-  justify-content: center; flex-wrap: wrap;
-  animation: fadeUp 0.8s 0.4s ease both;
-}
-.proof-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
-.proof-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border2); }
-
-/* ── MARQUEE ── */
-.marquee-wrap {
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  padding: 16px 0; overflow: hidden; background: var(--bg2);
-  position: relative; z-index: 1;
-}
-.marquee-track {
-  display: flex; gap: 0; white-space: nowrap;
-  animation: marquee 25s linear infinite;
-}
-.marquee-item {
-  display: inline-flex; align-items: center; gap: 12px;
-  padding: 0 32px; font-size: 11px; color: var(--muted);
-  letter-spacing: 2px; text-transform: uppercase; flex-shrink: 0;
-}
-.marquee-item span { color: var(--accent); font-size: 14px; }
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-/* ── SECTIONS ── */
-.section { padding: 120px 24px; max-width: 1100px; margin: 0 auto; }
-.section-tag {
-  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
-}
-.section-tag::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
-.section-title {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: clamp(32px, 4vw, 56px); font-weight: 800;
-  letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 64px;
-}
-.section-title em { font-style: normal; color: var(--accent); }
+/* ── STATS ── */
+.stats{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:40px 5%}
+.stats-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center}
+.stat{padding:20px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.stat-num{font-family:'Instrument Serif',serif;font-size:42px;color:var(--teal);font-weight:400;line-height:1}
+.stat-label{font-size:13px;color:var(--muted);margin-top:6px;font-weight:500}
 
 /* ── HOW IT WORKS ── */
-.how-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-.how-step {
-  background: var(--surface); padding: 40px 36px;
-  transition: background 0.3s;
-  position: relative; overflow: hidden;
-}
-.how-step::before {
-  content: attr(data-num);
-  position: absolute; right: 24px; top: 24px;
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 80px; font-weight: 800; color: rgba(255,255,255,0.02);
-  line-height: 1; pointer-events: none;
-}
-.how-step:hover { background: var(--surface2); }
-.step-icon-wrap {
-  width: 48px; height: 48px; border-radius: 12px;
-  background: rgba(0,212,245,0.08); border: 1px solid rgba(0,212,245,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; margin-bottom: 20px;
-}
-.how-step h3 {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px;
-}
-.how-step p { font-size: 12px; color: var(--muted2); line-height: 1.7; }
+.section{padding:100px 5%}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-tag{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);font-weight:600;font-family:'DM Mono',monospace;margin-bottom:16px}
+.section-title{font-family:'Instrument Serif',serif;font-size:clamp(32px,4vw,48px);color:var(--ink);font-weight:400;line-height:1.2;margin-bottom:16px}
+.section-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:560px}
 
-/* ── FEATURES ── */
-.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-.feat {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 28px 24px;
-  transition: border-color 0.25s, transform 0.25s;
-  position: relative; overflow: hidden;
-}
-.feat::after {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 50% 0%, rgba(0,212,245,0.04), transparent 60%);
-  opacity: 0; transition: opacity 0.3s;
-}
-.feat:hover { border-color: rgba(0,212,245,0.25); transform: translateY(-4px); }
-.feat:hover::after { opacity: 1; }
-.feat-icon { font-size: 26px; margin-bottom: 14px; }
-.feat h3 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-.feat p { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:64px}
+.step{position:relative}
+.step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.step-num::after{content:'';flex:1;height:1px;background:var(--line)}
+.step-icon{width:56px;height:56px;background:var(--mint);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;border:1px solid var(--line)}
+.step h3{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.step p{font-size:15px;color:var(--muted);line-height:1.7}
+.step-connector{position:absolute;top:28px;right:-20px;width:40px;height:1px;background:var(--line2);display:flex;align-items:center;justify-content:center}
+.step-connector::after{content:'›';color:var(--line2);font-size:18px;position:absolute;right:-6px;top:-11px}
 
-/* ── PRIVACY ── */
-.privacy-wrap {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 20px; overflow: hidden;
-  display: grid; grid-template-columns: 1fr 1fr;
-}
-.privacy-left { padding: 56px 48px; border-right: 1px solid var(--border); }
-.privacy-right { padding: 56px 48px; background: var(--bg2); }
-.privacy-title {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px;
-}
-.privacy-desc { font-size: 13px; color: var(--muted2); line-height: 1.8; margin-bottom: 32px; }
-.privacy-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
-.privacy-list li {
-  display: flex; gap: 14px; font-size: 12px; color: var(--muted2); line-height: 1.5;
-  align-items: flex-start;
-}
-.check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+/* ── FEATURES GRID ── */
+.features{background:var(--mint);padding:100px 5%}
+.features-inner{max-width:1200px;margin:0 auto}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px}
+.feature-card{background:var(--white);border-radius:16px;padding:32px;border:1px solid var(--line);transition:all 0.25s;cursor:default}
+.feature-card:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,109,119,0.1)}
+.feature-card.featured{background:var(--teal);border-color:var(--teal)}
+.feature-card.featured .feature-title,.feature-card.featured .feature-desc{color:#fff}
+.feature-card.featured .feature-desc{color:rgba(255,255,255,0.75)}
+.feature-card.featured .feature-icon{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2)}
+.feature-icon{width:48px;height:48px;background:var(--mint);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;border:1px solid var(--line)}
+.feature-title{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.feature-desc{font-size:14px;color:var(--muted);line-height:1.7}
+.feature-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;letter-spacing:0.5px;padding:4px 10px;border-radius:100px;margin-top:16px;background:rgba(0,109,119,0.08);color:var(--teal)}
+.feature-card.featured .feature-tag{background:rgba(255,255,255,0.15);color:#fff}
 
-.toggle-demo {
-  display: flex; flex-direction: column; gap: 10px;
-}
-.toggle-row {
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; padding: 12px 16px;
-}
-.toggle-row.sensitive { border-color: rgba(255,92,53,0.2); background: rgba(255,92,53,0.04); }
-.toggle-row.safe { border-color: rgba(110,255,160,0.15); }
-.t-label { font-size: 11px; color: var(--text); }
-.t-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-.toggle-pill {
-  width: 36px; height: 20px; border-radius: 100px;
-  position: relative; flex-shrink: 0;
-}
-.toggle-pill.on { background: rgba(110,255,160,0.2); border: 1px solid rgba(110,255,160,0.4); }
-.toggle-pill.off { background: rgba(255,92,53,0.15); border: 1px solid rgba(255,92,53,0.3); }
-.toggle-pill::after {
-  content: ''; position: absolute; top: 2px;
-  width: 14px; height: 14px; border-radius: 50%;
-  transition: left 0.2s;
-}
-.toggle-pill.on::after { left: 18px; background: var(--green); }
-.toggle-pill.off::after { left: 2px; background: var(--accent2); }
-.t-demo-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+/* ── PLATFORMS ── */
+.platforms{padding:80px 5%;border-top:1px solid var(--line)}
+.platforms-inner{max-width:1200px;margin:0 auto;text-align:center}
+.platforms-title{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:500;margin-bottom:40px;font-family:'DM Mono',monospace}
+.platforms-list{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.platform-pill{background:var(--white);border:1px solid var(--line);border-radius:100px;padding:10px 20px;font-size:14px;color:var(--ink);font-weight:500;display:flex;align-items:center;gap:8px;transition:all 0.2s}
+.platform-pill:hover{border-color:var(--teal);color:var(--teal)}
+.platform-pill span{font-size:18px}
+
+
+/* ── CTA ── */
+.cta-section{background:var(--ink);padding:100px 5%;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:var(--teal);opacity:0.06;top:-200px;left:50%;transform:translateX(-50%)}
+.cta-inner{max-width:700px;margin:0 auto;position:relative}
+.cta-title{font-family:'Instrument Serif',serif;font-size:clamp(36px,5vw,56px);color:#fff;font-weight:400;line-height:1.15;margin-bottom:20px}
+.cta-title em{font-style:italic;color:var(--teal2)}
+.cta-sub{font-size:18px;color:rgba(255,255,255,0.5);margin-bottom:40px;line-height:1.7}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-white{background:#fff;color:var(--ink);padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px}
+.btn-white:hover{background:#f1f5f9;transform:translateY(-1px)}
+.btn-ghost{color:rgba(255,255,255,0.7);padding:14px 28px;border-radius:10px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.35);color:#fff}
 
 /* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--border); padding: 32px 48px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.footer-logo {
-  font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 800;
-  background: linear-gradient(120deg, #00d4f5, #6effa0);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.footer-links { display: flex; gap: 28px; }
-.footer-links a { color: var(--muted); font-size: 11px; text-decoration: none; letter-spacing: 1px; transition: color 0.2s; }
-.footer-links a:hover { color: var(--text); }
-.footer-copy { font-size: 11px; color: var(--muted); }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.reveal {
-  opacity: 0; transform: translateY(32px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal.visible { opacity: 1; transform: translateY(0); }
+footer{background:var(--ink2);border-top:1px solid rgba(255,255,255,0.06);padding:48px 5% 32px}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-brand{font-family:'Instrument Serif',serif;font-size:24px;color:var(--teal);margin-bottom:12px}
+.footer-brand em{font-style:italic;color:var(--coral)}
+.footer-desc{font-size:14px;color:rgba(255,255,255,0.35);line-height:1.7;max-width:260px}
+.footer-col h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;font-family:'DM Mono',monospace}
+.footer-col a{display:block;font-size:14px;color:rgba(255,255,255,0.45);text-decoration:none;margin-bottom:10px;transition:color 0.2s}
+.footer-col a:hover{color:rgba(255,255,255,0.8)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center}
+.footer-copy{font-size:13px;color:rgba(255,255,255,0.25)}
+.footer-tg{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.footer-tg:hover{color:rgba(255,255,255,0.6)}
 
 /* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  nav { padding: 0 24px; }
-  .nav-links { display: none; }
-  .how-wrap { grid-template-columns: 1fr; }
-  .features-grid { grid-template-columns: 1fr 1fr; }
-  .privacy-wrap { grid-template-columns: 1fr; }
-  .privacy-left { border-right: none; border-bottom: 1px solid var(--border); }
-  footer { flex-direction: column; gap: 20px; text-align: center; }
-  .footer-links { flex-wrap: wrap; justify-content: center; }
-  body { cursor: auto; }
-  .cursor, .cursor-ring { display: none; }
+@media(max-width:768px){
+  .hero-inner{grid-template-columns:1fr;gap:48px}
+  .hero-visual{order:-1}
+  .phone-frame{max-width:280px}
+  .steps{grid-template-columns:1fr}
+  .step-connector{display:none}
+  .features-grid{grid-template-columns:1fr}
+    .stats-inner{grid-template-columns:repeat(2,1fr)}
+  .stat{border-right:none;border-bottom:1px solid var(--line)}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
 }
-@media (max-width: 600px) {
-  .features-grid { grid-template-columns: 1fr; }
-  .waitlist-form { flex-direction: column; }
-  .hero-title { letter-spacing: -2px; }
-}
+
+/* ── ANIMATIONS ── */
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.fade-up.visible{opacity:1;transform:none}
 </style>
 </head>
 <body>
 
-<!-- Custom cursor -->
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursor-ring"></div>
-
 <!-- NAV -->
 <nav>
-  <div style="display:flex;flex-direction:column;gap:2px;">
-    <div class="nav-logo">BAVN.io</div>
-    <div style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);line-height:1;">Built-in Autofill &amp; Verification Node</div>
-  </div>
+  <a href="/" class="nav-logo">B<em>A</em>VN<span style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);font-style:normal;margin-left:4px">.io</span></a>
   <div class="nav-links">
-    <a href="#how">How it works</a>
+    <a href="#how-it-works">How it works</a>
     <a href="#features">Features</a>
-    <a href="#privacy">Privacy</a>
-    <a href="#install">Install</a>
-    <a href="mailto:itspranavjoshi02@gmail.com" style="color:var(--accent);">Contact Dev</a>
-    </div>
-  <a class="nav-cta" href="bavn-extension-v1.0.0.zip" download>Download Free →</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="privacy.html">Privacy</a>
+  </div>
+  <a href="BAVN-extension-v1.0.zip" download class="nav-cta">⬇ Download Extension</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-grid"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-
-  <div class="hero-content">
-    <div class="hero-eyebrow">
-      <span class="eyebrow-dot"></span>
-      AI-powered form filling
-    </div>
-    <h1 class="hero-title">
-      <span class="t1">Stop filling</span>
-      <span class="t2">forms manually.</span>
-    </h1>
-    <p style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;animation:fadeUp 0.8s 0.18s ease both;">Built-in Autofill &amp; Verification Node</p>
-    <p class="hero-sub">
-      BAVN reads any form, generates personalized answers from your profile,
-      and fills everything in one click. Your answers are saved to cloud memory
-      and reused automatically — forever.
-    </p>
-    <div class="hero-actions">
-
-      <a class="btn-hero btn-filled" href="bavn-extension-v1.0.0.zip" download>
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M7.5 1v9M3.5 7l4 4 4-4M1 13h13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Download — Free
-      </a>
-      <a class="btn-hero btn-ghost" href="#how">See how it works</a>
+  <div class="hero-bg">
+    <div class="hero-circle hero-circle-1"></div>
+    <div class="hero-circle hero-circle-2"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-content fade-up">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        Now with Telegram Bot
+      </div>
+      <h1>Fill any form<br>in <em>seconds</em> with<br><span>AI answers</span></h1>
+      <p class="hero-sub">BAVN fills any form instantly using your profile and AI-generated answers. Works on Internshala, Unstop, Google Forms, and everywhere else.</p>
+      <div class="hero-actions">
+        <a href="BAVN-extension-v1.0.zip" download class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Download Extension — Free
+        </a>
+        <a href="#how-it-works" class="btn-secondary">See how it works</a>
+      </div>
+      <p class="hero-note">No account needed · Free forever · Install in 30 seconds</p>
     </div>
 
-    <div class="hero-proof">
-      <div class="proof-item">🎓 Built for students</div>
-      <div class="proof-dot"></div>
-      <div class="proof-item">⚡ Works on any form</div>
-      <div class="proof-dot"></div>
-      <div class="proof-item">🔒 Privacy-first</div>
-      <div class="proof-dot"></div>
-      <div class="proof-item">🆓 Free to start</div>
+    <div class="hero-visual fade-up" style="animation-delay:0.2s">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>●●●</span>
+          </div>
+          <div class="tg-header">
+            <div class="tg-avatar">🤖</div>
+            <div>
+              <div class="tg-name">BAVN Bot</div>
+              <div class="tg-status">● online</div>
+            </div>
+          </div>
+          <div class="tg-chat">
+            <div class="msg msg-bot" style="animation-delay:0.3s">👋 Welcome to <strong>BAVN</strong>! What would you like to do?</div>
+            <div class="msg msg-user" style="animation-delay:0.8s">📋 Fill Form</div>
+            <div class="msg msg-bot" style="animation-delay:1.3s">Send me the form URL 🔗</div>
+            <div class="msg msg-user" style="animation-delay:1.8s">internshala.com/application/...</div>
+            <div class="msg msg-bot" style="animation-delay:2.3s">✅ <strong>4 answers ready!</strong><br><br><strong>Q1.</strong> Why do you want to apply?<br>→ I am deeply passionate about...</div>
+            <div class="msg msg-bot" style="animation-delay:2.8s">📱 Open Chrome — extension auto-fills it!</div>
+          </div>
+          <div class="kbd-btns">
+            <div class="kbd-btn">✅ Save</div>
+            <div class="kbd-btn">✏️ Change Q2</div>
+            <div class="kbd-btn">👁 Preview</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- MARQUEE -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <!-- First set -->
-    <div class="marquee-item"><span>✦</span> Google Forms</div>
-    <div class="marquee-item"><span>✦</span> Internship Applications</div>
-    <div class="marquee-item"><span>✦</span> Job Portals</div>
-    <div class="marquee-item"><span>✦</span> College Forms</div>
-    <div class="marquee-item"><span>✦</span> Survey Forms</div>
-    <div class="marquee-item"><span>✦</span> Registration Forms</div>
-    <div class="marquee-item"><span>✦</span> Typeform</div>
-    <div class="marquee-item"><span>✦</span> Application Portals</div>
-    <div class="marquee-item"><span>✦</span> Scholarship Forms</div>
-    <div class="marquee-item"><span>✦</span> HR Onboarding</div>
-    <!-- Duplicate for seamless loop -->
-    <div class="marquee-item"><span>✦</span> Google Forms</div>
-    <div class="marquee-item"><span>✦</span> Internship Applications</div>
-    <div class="marquee-item"><span>✦</span> Job Portals</div>
-    <div class="marquee-item"><span>✦</span> College Forms</div>
-    <div class="marquee-item"><span>✦</span> Survey Forms</div>
-    <div class="marquee-item"><span>✦</span> Registration Forms</div>
-    <div class="marquee-item"><span>✦</span> Typeform</div>
-    <div class="marquee-item"><span>✦</span> Application Portals</div>
-    <div class="marquee-item"><span>✦</span> Scholarship Forms</div>
-    <div class="marquee-item"><span>✦</span> HR Onboarding</div>
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat fade-up">
+      <div class="stat-num">3s</div>
+      <div class="stat-label">Average answer time</div>
+    </div>
+    <div class="stat fade-up" style="animation-delay:0.1s">
+      <div class="stat-num">50+</div>
+      <div class="stat-label">Supported platforms</div>
+    </div>
+    <div class="stat fade-up" style="animation-delay:0.2s">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Free to use</div>
+    </div>
+    <div class="stat fade-up" style="animation-delay:0.3s">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Forms per day</div>
+    </div>
   </div>
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="section" id="how">
-  <div class="reveal">
-    <div class="section-tag">How it works</div>
-    <div class="section-title">From open to filled<br>in <em>four steps.</em></div>
-  </div>
-  <div class="how-wrap reveal">
-    <div class="how-step" data-num="01">
-      <div class="step-icon-wrap">🧩</div>
-      <h3>Install & sign in</h3>
-      <p>Add BAVN to Chrome and sign in with Google. Your account and memory sync across every device you own — instantly.</p>
+<section class="section" id="how-it-works">
+  <div class="section-inner">
+    <div class="fade-up">
+      <div class="section-tag">How it works</div>
+      <h2 class="section-title">Three steps to<br><em style="font-family:'Instrument Serif',serif;font-style:italic">never struggle</em> with forms again</h2>
+      <p class="section-sub">BAVN combines a Chrome extension, Telegram bot, and AI to make form filling effortless.</p>
     </div>
-    <div class="how-step" data-num="02">
-      <div class="step-icon-wrap">👤</div>
-      <h3>Set your profile once</h3>
-      <p>Fill in your details — college, degree, skills, resume. Use privacy toggles to choose exactly what the AI is allowed to see.</p>
-    </div>
-    <div class="how-step" data-num="03">
-      <div class="step-icon-wrap">✦</div>
-      <h3>Generate answers</h3>
-      <p>Open any form, click Generate in the sidebar. BAVN reads every question and creates personalized, first-person answers instantly.</p>
-    </div>
-    <div class="how-step" data-num="04">
-      <div class="step-icon-wrap">⚡</div>
-      <h3>Fill & remember</h3>
-      <p>One click fills the entire form. Every answer is saved to your cloud memory — reused automatically on future forms. It gets smarter every time.</p>
+
+    <div class="steps">
+      <div class="step fade-up" style="animation-delay:0.1s">
+        <div class="step-num">01 ─────────</div>
+        <div class="step-icon">🔗</div>
+        <h3>Open any form</h3>
+        <p>Navigate to any form on Internshala, Unstop, Google Forms, or any website. BAVN detects all the questions automatically.</p>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step fade-up" style="animation-delay:0.2s">
+        <div class="step-num">02 ─────────</div>
+        <div class="step-icon">🤖</div>
+        <h3>AI generates answers</h3>
+        <p>BAVN reads every question and generates personalized answers using your saved profile — in under 3 seconds.</p>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step fade-up" style="animation-delay:0.3s">
+        <div class="step-num">03 ─────────</div>
+        <div class="step-icon">⚡</div>
+        <h3>Extension auto-fills</h3>
+        <p>Open the form in Chrome. BAVN extension fills every field instantly — even across multiple pages.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- FEATURES -->
-<section class="section" id="features" style="padding-top:0;">
-  <div class="reveal">
-    <div class="section-tag">Features</div>
-    <div class="section-title">Everything you need<br>to <em>apply faster.</em></div>
-  </div>
-  <div class="features-grid reveal">
-    <div class="feat">
-      <div class="feat-icon">🧠</div>
-      <h3>Cloud Memory</h3>
-      <p>Every answer you generate is saved. Similar questions get reused instantly — no AI call, no waiting, no repeating yourself.</p>
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="fade-up">
+      <div class="section-tag">Features</div>
+      <h2 class="section-title">Everything you need to<br>apply faster and smarter</h2>
     </div>
-    <div class="feat">
-      <div class="feat-icon">📱</div>
-      <h3>Cross-device sync</h3>
-      <p>Log in on any device and your entire answer history is already there. Install once, use everywhere.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">✍️</div>
-      <h3>Teach BAVN</h3>
-      <p>Wrote a better answer yourself? BAVN can learn it. Save any manually written answer to memory with one click.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">⚡</div>
-      <h3>Works on any form</h3>
-      <p>Google Forms, Typeform, internship portals, job applications — BAVN detects and fills questions on any website.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">✦</div>
-      <h3>Personalized answers</h3>
-      <p>Answers written in your voice using your background. Not generic templates — real answers that sound like you.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">🔄</div>
-      <h3>Gets smarter over time</h3>
-      <p>The more forms you fill, the richer your memory gets. BAVN improves with every application you send.</p>
-    </div>
-  </div>
-</section>
 
-<!-- PRIVACY -->
-<section class="section" id="privacy" style="padding-top:0;">
-  <div class="reveal">
-    <div class="section-tag">Privacy</div>
-    <div class="section-title">You control what<br>the <em>AI sees.</em></div>
-  </div>
-  <div class="privacy-wrap reveal">
-    <div class="privacy-left">
-      <div class="privacy-title">Your data stays yours.</div>
-      <p class="privacy-desc">BAVN is built privacy-first from the ground up. Row Level Security means your data is physically inaccessible to anyone else — even with direct database access.</p>
-      <ul class="privacy-list">
-        <li><span class="check">✓</span>Row Level Security at DB level — only you can read your data</li>
-        <li><span class="check">✓</span>Phone, email, LinkedIn never sent to AI unless you enable them</li>
-        <li><span class="check">✓</span>Google OAuth — we never see or store your password</li>
-        <li><span class="check">✓</span>Delete any saved answer at any time from the Memory tab</li>
-        <li><span class="check">✓</span>No ads. No selling your data. No tracking. Ever.</li>
-      </ul>
-    </div>
-    <div class="privacy-right">
-      <div class="t-demo-label">AI visibility controls</div>
-      <div class="toggle-demo">
-        <div class="toggle-row safe">
-          <div><div class="t-label">Full Name</div><div class="t-sub">Safe to share</div></div>
-          <div class="toggle-pill on"></div>
-        </div>
-        <div class="toggle-row safe">
-          <div><div class="t-label">College & Degree</div><div class="t-sub">Safe to share</div></div>
-          <div class="toggle-pill on"></div>
-        </div>
-        <div class="toggle-row safe">
-          <div><div class="t-label">Resume / Bio</div><div class="t-sub">Safe to share</div></div>
-          <div class="toggle-pill on"></div>
-        </div>
-        <div class="toggle-row sensitive">
-          <div><div class="t-label">Phone Number</div><div class="t-sub">Sensitive — off by default</div></div>
-          <div class="toggle-pill off"></div>
-        </div>
-        <div class="toggle-row sensitive">
-          <div><div class="t-label">Email Address</div><div class="t-sub">Sensitive — off by default</div></div>
-          <div class="toggle-pill off"></div>
-        </div>
-        <div class="toggle-row sensitive">
-          <div><div class="t-label">LinkedIn URL</div><div class="t-sub">Sensitive — off by default</div></div>
-          <div class="toggle-pill off"></div>
-        </div>
+    <div class="features-grid">
+      <div class="feature-card featured fade-up">
+        <div class="feature-icon">✈️</div>
+        <div class="feature-title">Telegram Bot</div>
+        <div class="feature-desc">Chat with BAVN anywhere. Send a form URL, get answers, write reviews, and check your memory — all from Telegram.</div>
+        <div class="feature-tag">⭐ Core feature</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.1s">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Smart Memory</div>
+        <div class="feature-desc">BAVN remembers every answer you save. Next time it finds similar questions, it uses your best answers automatically.</div>
+        <div class="feature-tag">AI-powered</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.2s">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Multi-page Auto-fill</div>
+        <div class="feature-desc">The Chrome extension fills all fields and clicks Next automatically — even on forms with 10+ pages.</div>
+        <div class="feature-tag">Extension</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.1s">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-title">Cross-device Sync</div>
+        <div class="feature-desc">Fill a form on your laptop, check answers on your phone via Telegram. Everything syncs instantly through the cloud.</div>
+        <div class="feature-tag">Always in sync</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.2s">
+        <div class="feature-icon">⭐</div>
+        <div class="feature-title">Review Writer</div>
+        <div class="feature-desc">Describe any experience and BAVN writes a polished review for Zomato, Google Maps, Swiggy, and more.</div>
+        <div class="feature-tag">AI writing</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.3s">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Privacy First</div>
+        <div class="feature-desc">You control which fields the AI can see. Sensitive data like email and phone are off by default.</div>
+        <div class="feature-tag">Your data</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- INSTALL -->
-<section style="padding:100px 24px;text-align:center;position:relative;overflow:hidden;" id="install">
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:350px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,212,245,0.06) 0%,transparent 70%);pointer-events:none;"></div>
-  <div style="position:relative;z-index:1;max-width:560px;margin:0 auto;" class="reveal">
-    <div class="section-tag" style="justify-content:center;">Get started</div>
-    <div class="section-title" style="margin-bottom:48px;">Install in<br><em>2 minutes.</em></div>
-    <div style="display:flex;flex-direction:column;gap:0;margin-bottom:48px;text-align:left;">
-      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);">
-        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">1</div>
-        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Download the extension</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Click the button below to download the BAVN extension ZIP file.</div></div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);">
-        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">2</div>
-        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Open Chrome Extensions</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Go to <code style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--accent);">chrome://extensions</code> and toggle <strong style="color:var(--text);">Developer mode</strong> ON.</div></div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);">
-        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">3</div>
-        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Load the extension</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Unzip the file, click <strong style="color:var(--text);">Load unpacked</strong>, and select the unzipped folder.</div></div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:16px;padding:20px 0;">
-        <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,245,0.1);border:1px solid rgba(0,212,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;">4</div>
-        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Sign in & start filling</div><div style="font-size:12px;color:var(--muted2);line-height:1.6;">Click the BAVN icon in your toolbar, sign in with Google, and you're ready.</div></div>
-      </div>
+<!-- PLATFORMS -->
+<section class="platforms">
+  <div class="platforms-inner fade-up">
+    <div class="platforms-title">Works on every platform</div>
+    <div class="platforms-list">
+      <div class="platform-pill"><span>🎓</span> Internshala</div>
+      <div class="platform-pill"><span>🏆</span> Unstop</div>
+      <div class="platform-pill"><span>📋</span> Google Forms</div>
+      <div class="platform-pill"><span>💼</span> LinkedIn</div>
+      <div class="platform-pill"><span>🔍</span> Naukri</div>
+      <div class="platform-pill"><span>🌟</span> Zomato</div>
+      <div class="platform-pill"><span>🛵</span> Swiggy</div>
+      <div class="platform-pill"><span>🗺️</span> Google Maps</div>
+      <div class="platform-pill"><span>📝</span> Typeform</div>
+      <div class="platform-pill"><span>✨</span> Any website</div>
     </div>
-    <a class="btn-hero btn-filled" href="bavn-extension-v1.0.0.zip" download style="font-size:15px;padding:18px 40px;display:inline-flex;">
-      <svg width="16" height="16" viewBox="0 0 15 15" fill="none">
-        <path d="M7.5 1v9M3.5 7l4 4 4-4M1 13h13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Download BAVN — Free
-    </a>
-    <p style="margin-top:16px;font-size:11px;color:var(--muted);">Chrome Web Store version coming soon · Works on Chrome, Brave, Edge</p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner fade-up">
+    <h2 class="cta-title">Start filling forms<br>in <em>seconds</em> today</h2>
+    <p class="cta-sub">Free Chrome extension + Telegram bot. No account needed to start.</p>
+    <div class="cta-actions">
+      <a href="BAVN-extension-v1.0.zip" download class="btn-white">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Download Extension — Free
+      </a>
+      <a href="https://t.me/bavn_bot" class="btn-ghost">Open Telegram Bot ↗</a>
+    </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <a href="#" class="footer-logo" style="text-decoration:none;cursor:none;">BAVN.io</a>
-  <div class="footer-links">
-    <a href="#how">How it works</a>
-    <a href="#features">Features</a>
-    <a href="#privacy">Privacy</a>
-    <a href="#install">Install</a>
-    <a href="mailto:itspranavjoshi02@gmail.com" style="color:var(--accent);">Contact Dev</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">B<em>A</em>VN<span style="font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.2);font-style:normal;margin-left:4px">.io</span></div>
+        <p class="footer-desc">Built-in Autofill & Verification Node. AI-powered form filling for students and professionals.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="roadmap.html">Roadmap</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+      <div class="footer-col">
+        <h4>Get BAVN</h4>
+        <a href="BAVN-extension-v1.0.zip" download>Download Extension</a>
+        <a href="https://t.me/bavn_bot">Telegram Bot</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 BAVN.io — All rights reserved</div>
+      <a href="https://t.me/bavn_bot" class="footer-tg">✈️ Try BAVN Bot on Telegram →</a>
+    </div>
   </div>
-  <div class="footer-copy" style="text-align:right;">© 2026 BAVN.io<br><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;">Built-in Autofill &amp; Verification Node</span></div>
 </footer>
 
 <script>
-// ── Custom cursor ──────────────────────────
-const cursor     = document.getElementById('cursor')
-const cursorRing = document.getElementById('cursor-ring')
-let mx = 0, my = 0, rx = 0, ry = 0
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY
-  cursor.style.left = mx + 'px'
-  cursor.style.top  = my + 'px'
-})
-
-function animateRing() {
-  rx += (mx - rx) * 0.12
-  ry += (my - ry) * 0.12
-  cursorRing.style.left = rx + 'px'
-  cursorRing.style.top  = ry + 'px'
-  requestAnimationFrame(animateRing)
-}
-animateRing()
-
-document.querySelectorAll('a, button, .feat, .how-step').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.width = '14px'
-    cursor.style.height = '14px'
-    cursorRing.style.width = '48px'
-    cursorRing.style.height = '48px'
+// Scroll animations
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) }
   })
-  el.addEventListener('mouseleave', () => {
-    cursor.style.width = '8px'
-    cursor.style.height = '8px'
-    cursorRing.style.width = '32px'
-    cursorRing.style.height = '32px'
-  })
-})
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
 
-// ── Scroll reveal ──────────────────────────
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => entry.target.classList.add('visible'), i * 80)
-    }
-  })
-}, { threshold: 0.1 })
-
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
-
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el))
 </script>
 </body>
 </html>
